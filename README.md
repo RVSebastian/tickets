@@ -1,6 +1,6 @@
 # Gestor de Servicios y Tickets: Optimizando la Eficiencia Empresarial
 
-os complace presentar un robusto sistema de gestión de solicitudes de servicios diseñado por Sebastián Vargaz. Este software como servicio (SaaS) ofrece un enfoque integral para el control, gestión y cumplimiento de solicitudes de servicios en entornos empresariales.
+Nos complace presentar un robusto sistema de gestión de solicitudes de servicios diseñado por Sebastián Vargaz. Este software como servicio (SaaS) ofrece un enfoque integral para el control, gestión y cumplimiento de solicitudes de servicios en entornos empresariales.
 
 La aplicación está configurada para adaptarse a la dinámica de múltiples empresas y usuarios, con una estructura organizacional que refleja la realidad de las unidades operativas, cada una liderada por un jefe y con personal a cargo. Además, se integra una sección operativa de servicios generales, dirigida por un director, encargada de atender y responder a las diversas necesidades de las demás dependencias.
 
