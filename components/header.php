@@ -1,21 +1,9 @@
 <?php
 
 session_start();
+error_reporting(0);
 
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
-$host = $_SERVER['HTTP_HOST'];
-$uri = $_SERVER['REQUEST_URI'];
-$url = $protocol . "://" . $host . $uri;
 
-// Verificar si la URL contiene "/tickets/login"
-if (strpos($url, "/tickets/login") !== false) {
-    session_destroy();
-} 
-else {
-    if (!isset($_SESSION['key']['usuario'])){ 
-      header("Location: login");
-    }
-}
 ?>
 
 <style>
@@ -30,7 +18,7 @@ else {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tickets</title>
+    <title>Storage</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -43,6 +31,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js
     <link href="
 https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css
 " rel="stylesheet">
+<link rel="shortcut icon" href="./img/logo.png" type="image/x-icon">
 </head>
 
 <body class="bg-gray-200">

@@ -31,11 +31,13 @@ $("#buscador").on("input", function() {
 
 $('#add').click(function() {
     $('#view-1').hide();
+    $('#tickets_search').hide();
     $('#view-2').fadeIn('slow');
 });
 
 $('#form').submit(function() {
     var formData = $(this).serialize() + "&action=create";
+   
     $.ajax({
         type: "POST",
         url: "./components/moduls/tickets/funciones",
@@ -102,6 +104,7 @@ $('.form-coments').submit(function() {
                 });
                 var id = formData.split("&").find(pair => pair.startsWith("1="))?.split("=")[1];
                 solicitudes(c = 'coment', id = id);
+                   $('#tickets_search').hide();
             } else {
                 Swal.fire({
                     icon: "error",
@@ -204,40 +207,13 @@ $('.estatus').click(function() {
 $('.editar').click(function() {
     var id = $(this).attr('data-id');
     $('#form-' + id).fadeIn('slow');
-    $('#view-1').hide();
+    $('#view-1, #tickets_search').hide();
     $('#view-2').hide();
 });
 </script>
 <div id="tickets">
-    <div class="basis-12/12 py-5" id="view-1">
-        <div class="max-w-7xl mx-auto bg-white p-2 rounded shadow mb-4">
-            <div class="py-2 px-2">
-                <div class="flex flex-row">
-                    <div class="basis-11/12 pr-8">
-                        <label for="default-search" class="mb-2 text-sm font-medium sr-only">Search</label>
-                        <div class="relative w-full">
-                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                    fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                </svg>
-                            </div>
-                            <input type="search" id="buscador"
-                                class="block w-full p-3 ps-10 bg-gray-50 text-sm text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 border-0"
-                                placeholder="Buscar por Rol, Nombre, etc" required>
-                        </div>
-                    </div>
-                    <div class="basis-1/12 pl-8 <?php if ($rol != 'Empleado' and $rol !='Jefe de Servicios') {
-                   echo 'hidden';
-                } ?>">
-                        <i id="add" class='bx bx-mail-send bg-gray-900 text-white px-3 py-1 rounded text-lg'></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto bg-white p-5 rounded shadow">
+    <div class="basis-12/12 mt-0 pt-0 pb-5" id="view-1">
+        <div class="w-full mx-auto bg-white p-5 rounded ">
             <?php if (mysqli_num_rows($result_task) > 0) 
     {
     ?>
@@ -247,7 +223,7 @@ $('.editar').click(function() {
                         <?php
                     foreach ($result_task as $row) {
                     ?>
-                        <tr class="bg-white border-b hover:bg-gray-50 text-justify">
+                        <tr class="editar bg-white border-b hover:bg-gray-100 hover:cursor-pointer	 text-justify" data-id="<?php echo $row['id'];?>">
                             <th scope="row" class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap">
                                 TCK-<?php echo $row['id'];  ?>
                             </th>
@@ -279,10 +255,7 @@ $('.editar').click(function() {
                                 else{echo 'bx-check bg-green-600';} 
                                 ?> rounded p-2 text-white"></i>
                             </td>
-                            <td class="px-2 py-4 text-center">
-                                <i data-id="<?php echo $row['id'];?>"
-                                    class='editar bx bx-low-vision bg-slate-800 text-white rounded p-2'></i>
-                            </td>
+                           
                         </tr>
                         <?php
                     }
@@ -304,7 +277,7 @@ $('.editar').click(function() {
 foreach ($result_task as $row) {
 ?>
     <div class="basis-12/12 py-6 hidden form-update" id="form-<?php echo $row['id']; ?>">
-        <form class="relative  max-w-4xl mx-auto bg-white p-6 mb-3 rounded shadow form-edit">
+        <form class="relative  w-fill mx-auto bg-white p-6 mb-3 rounded shadow form-edit">
             <?php 
         if ($rol == 'Empleado' and $row['estado'] == 'Pendiente') {
         ?>
@@ -373,7 +346,7 @@ foreach ($result_task as $row) {
                 class="text-white bg-slate-800 hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Actualizar
                 Ticket</button>
         </form>
-        <form class="relative  max-w-4xl mx-auto bg-white p-6 rounded shadow form-coments">
+        <form class="relative  w-fill mx-auto bg-white p-6 rounded shadow form-coments">
             <p>Añadir comentarios al ticket:</p>
             <input type="hidden" name="1" id="1" value="<?php echo $row['id'] ?>">
             <input type="hidden" name="2" id="2" value="<?php echo $usuario; ?>">
@@ -391,7 +364,7 @@ foreach ($result_task as $row) {
     foreach ($result_task2 as $row) 
     {
     ?>
-        <div class="relative my-6 max-w-4xl mx-auto bg-white p-6 rounded shadow form-coments text-sm text-justify">
+        <div class="relative my-6 w-fill mx-auto bg-white p-6 rounded shadow form-coments text-sm text-justify">
             <p class="font-semibold">
                 <?php echo $row['usuario']; ?>
             </p>
@@ -413,7 +386,7 @@ foreach ($result_task as $row) {
 ?>
 
     <div class="basis-12/12 py-6 hidden" id="view-2">
-        <form class="max-w-4xl mx-auto bg-white p-6 rounded shadow-sm" id="form">
+        <form class="w-fill mx-auto bg-white p-6 rounded shadow-sm" id="form">
             <div class="mb-5 pt-2">
                 <p>Creacion de Ticket</p>
                 <p>Usuario: <?php echo $_SESSION['key']['usuario']; ?></p>

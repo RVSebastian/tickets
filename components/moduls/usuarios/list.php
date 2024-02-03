@@ -1,8 +1,17 @@
 <?php
 include '../../db/cn.php';
 session_start();
-$query = "SELECT * FROM USUARIOS ORDER BY rol DESC";
+$empresa = $_SESSION['key']['empresa'];
+if ($empresa == 'ADMINISTRADOR') {
+    $query = "SELECT * FROM usuarios ORDER BY rol DESC";
+    $query2 = "SELECT * FROM empresas order by nombre DESC";
+}else{
+    $query = "SELECT * FROM usuarios WHERE empresa = '$empresa' ORDER BY rol DESC";
+    $query2 = "SELECT * FROM empresas WHERE nombre = '$empresa' order by nombre DESC";
+}
+$result_task2 = mysqli_query($conn, $query2);
 $result_task = mysqli_query($conn, $query);
+
 ?>
 
 <script>
@@ -14,7 +23,7 @@ $("#buscador").on("input", function() {
     });
 });
 
-$('#add').click(function() {
+$('#add_user').click(function() {
     $('#view-1').hide();
     $('#view-2').fadeIn('slow');
 });
@@ -108,9 +117,9 @@ $('.editar').click(function() {
 });
 </script>
 
-<div id="usuarios" class="hidden">
+<div id="usuarios">
     <div class="basis-12/12 py-5" id="view-1">
-        <div class="max-w-6xl mx-auto bg-white p-2 rounded shadow mb-4">
+        <div class="w-fill mx-auto bg-white rounded p-2 rounded  mb-4">
             <div class="py-2 px-2">
                 <div class="flex flex-row">
                     <div class="basis-11/12">
@@ -129,64 +138,94 @@ $('.editar').click(function() {
                         </div>
                     </div>
                     <div class="basis-1/12 px-4">
-                        <i id="add" class='bx bxs-user-plus bg-gray-900 text-white px-3 py-1 rounded text-lg'></i>
+                        <i id="add_user" class='bx bxs-user-plus bg-gray-900 text-white px-3 py-1 rounded text-lg'></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="max-w-6xl mx-auto bg-white p-5 rounded shadow">
+        <div class="w-fill mx-auto bg-white p-5 rounded mt-5">
             <div class="relative overflow-x-auto">
-                <table class="w-full text-sm text-left rtl:text-right text-gray-900" id="tabla">
+                <table class="w-full text-sm text-left rtl:text-right text-gray-900">
                     <tbody>
-                        <?php
-                    foreach ($result_task as $row) {
-                    ?>
+                        <?php foreach ($result_task2 as $row) { ?>
                         <tr class="bg-white border-b hover:bg-gray-100">
                             <td class="px-0 py-4">
-                                <i class='bx bx-user 
-                            <?php
-                            if ($row['rol'] == 'Jefe de Unidad') {
-                               echo 'bg-slate-500';
-                            }
-                            if ($row['rol'] == 'Jefe de Servicios') {
-                                echo 'bg-slate-400';
-                             }
-                             
-                            ?>
-                            bg-gray-300 text-black rounded p-2'></i>
+                                <i class='bx bxs-data bg-yellow-600 text-white rounded p-2'></i>
                             </td>
+                        
                             <th scope="row" class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                <?php echo $row['usuario'];  ?>
+                                <?php echo $row['nombre']; ?>
                             </th>
                             <td class="px-4 py-4">
-                                <?php echo $row['nombre'];  ?>
+                                Cantidad de licencias: <?php echo $row['cantidade']; ?>
                             </td>
                             <td class="px-4 py-4">
-                                <?php echo $row['rol'];  ?>
-                            </td>
-                            <td class="px-2 py-4 text-center">
-                                <i data-id="<?php echo $row['id'];?>"
-                                    class='editar bx bx-edit-alt bg-slate-800 text-white rounded p-2'></i>
-                            </td>
-                            <td class="px-2 py-4 text-center">
-                                <i data-id="<?php echo $row['id'];?>"
-                                    class='eliminar bx bx-trash-alt bg-red-600 text-white rounded p-2'></i>
+                                Estado: <?php if ($row['estado'] == 1) {
+                            echo 'Activo';
+                          }else{echo 'Desactivado'; } ?>
                             </td>
                         </tr>
-                        <?php
-                    }
-                    ?>
+                        <tr>
+                            <td colspan="5">
+                                <!-- Asegura que esta celda abarque todas las columnas -->
+                                <div class="w-fill mx-auto bg-white p-5 rounded">
+                                    <div class="relative overflow-x-auto">
+                                        <table class="w-full text-sm text-left rtl:text-right text-gray-900" id="tabla">
+                                            <tbody>
+                                                <?php foreach ($result_task as $row2) {
+                                                if ($row['nombre'] == $row2['empresa']) { ?>
+                                                <tr class="bg-white border-b hover:bg-gray-100">
+                                                    <td class="px-0 py-4">
+                                                        <i class='bx bx-user bg-gray-300 text-black rounded p-2'></i>
+                                                    </td>
+                                                    <th scope="row"
+                                                        class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                                        <?php echo $row2['empresa']; ?>
+                                                    </th>
+                                                    <th scope="row"
+                                                        class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                                        <?php echo $row2['usuario']; ?>
+                                                    </th>
+                                                    <td class="px-4 py-4">
+                                                        <?php echo $row2['nombre']; ?>
+                                                    </td>
+                                                    <td class="px-4 py-4">
+                                                        <?php echo $row2['rol']; ?>
+                                                    </td>
+                                                    <td class="px-4 py-4">
+                                                        <?php echo $row2['fecha_subida']; ?>
+                                                    </td>
+                                                    <td class="px-2 py-4 text-center">
+                                                        <i data-id="<?php echo $row2['id']; ?>"
+                                                            class='editar bx bx-edit-alt bg-slate-800 text-white rounded p-2'></i>
+                                                    </td>
+                                                    <td class="px-2 py-4 text-center">
+                                                        <i data-id="<?php echo $row2['id']; ?>"
+                                                            class='eliminar bx bx-trash-alt bg-red-600 text-white rounded p-2'></i>
+                                                    </td>
+                                                </tr>
+                                                <?php }
+                                            } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php } ?>
                     </tbody>
                 </table>
             </div>
         </div>
+
+
     </div>
 
     <?php
 foreach ($result_task as $row) {
 ?>
-    <div class="basis-12/12 py-6 hidden form-update" id="form-<?php echo $row['id']; ?>">
+    <div class="basis-12/12 py-6 hidden form-update mt-5" id="form-<?php echo $row['id']; ?>">
         <form class="max-w-md mx-auto bg-white p-6 rounded shadow-sm form-edit">
             <input type="hidden" name="id" id="id" value="<?php echo $row['id']; ?>">
             <div class="mb-5 pt-3">
@@ -227,8 +266,19 @@ foreach ($result_task as $row) {
     <?php
 }
 ?>
-    <div class="basis-12/12 py-6 hidden" id="view-2">
+    <div class="basis-12/12 py-6 hidden mt-5" id="view-2">
         <form class="max-w-md mx-auto bg-white p-6 rounded shadow-sm" id="form">
+            <div class="mb-5 pt-3">
+                <label for="usuario" class="block mb-2 text-sm font-medium text-gray-900">Empresa</label>
+                <select value="<?php if(isset($empresa)){echo $empresa;} ?>" <?php if($empresa != 'ADMINISTRADOR'){echo 'readonly ';} ?> required id="empresa" name="empresa" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5">
+                    <?php
+                    foreach ($result_task2 as $key) {
+                        echo '<option value="'.$key['nombre'].'">'.$key['nombre'].'</option>';
+                    }
+                    ?>
+        
+                </select>
+            </div>
             <div class="mb-5 pt-3">
                 <label for="usuario" class="block mb-2 text-sm font-medium text-gray-900">Usuario</label>
                 <input type="text" id="1" name="1"

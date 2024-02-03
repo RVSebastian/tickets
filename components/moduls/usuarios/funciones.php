@@ -17,7 +17,8 @@ if ($_POST['action'] == 'create') {
     $v2 = $_POST['2'];
     $v3 = $_POST['3'];
     $v4 = $_POST['4'];
-    $query = "INSERT INTO usuarios (usuario,nombre,rol,contraseña) VALUES ('$v1','$v2','$v3','$v4');";
+    $empresa = $_POST['empresa'];
+    $query = "INSERT INTO usuarios (usuario,nombre,rol,contraseña,empresa) VALUES ('$v1','$v2','$v3','$v4','$empresa');";
     $result_task = mysqli_query($conn, $query);
     if ($result_task === false) {
         die("Error en la consulta: " . mysqli_error($conn));

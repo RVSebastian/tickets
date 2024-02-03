@@ -6,16 +6,23 @@ session_start();
 
 $user = $_POST['user'];
 $contraseña = $_POST['contraseña'];
+$empresa = $_POST['empresa'];
 
-$query = "SELECT * FROM USUARIOS WHERE usuario='$user' and contraseña='$contraseña' LIMIT 1";
+$query = "SELECT u.id,u.empresa,u.usuario,u.nombre,u.rol,e.estado as estado FROM usuarios as u LEFT OUTER JOIN empresas as e on e.nombre = u.empresa  WHERE u.empresa='$empresa' and u.usuario='$user' and u.contraseña='$contraseña' LIMIT 1";
 $result_task = mysqli_query($conn, $query);
 
 if (mysqli_num_rows($result_task) > 0) {
-    echo "Usuario autenticado correctamente";
     $res = mysqli_fetch_assoc($result_task);
-    $_SESSION['key']['usuario'] = $res['usuario'];
-    $_SESSION['key']['rol'] = $res['rol'];
-    $_SESSION['key']['nombre'] = $res['nombre'];
+    if ($res['estado'] == 1) {
+        echo "Usuario autenticado correctamente";
+        $_SESSION['key']['empresa'] = $res['empresa'];
+        $_SESSION['key']['usuario'] = $res['usuario'];
+        $_SESSION['key']['rol'] = $res['rol'];
+        $_SESSION['key']['nombre'] = $res['nombre'];
+        $_SESSION['key']['id'] = $res['id'];
+    }else{
+        echo 'Licencia caducada, contactarse con servicio tecnico';
+    }
 } else {
     echo "Usuario o contraseña incorrectos";
 }

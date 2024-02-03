@@ -1,4 +1,13 @@
-RewriteEngine on
+RewriteEngine On
+
+# Redirigir solicitudes con "index" a la raíz del directorio
+RewriteRule ^index$ /StockifyPro/ [L,R=301]
+
+# Agregar una barra al final si no está presente
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*[^/])$ /$1/ [L,R=301]
+
+# Manejar solicitudes a archivos PHP
 RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^(.*)$ $1.php
+RewriteRule ^(.*)$ $1.php [L]
