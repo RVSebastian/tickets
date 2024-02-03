@@ -9,7 +9,7 @@ if (isset($_POST['id'])) {
 }else{
     $id = $_POST['id'] = $_SESSION['coti'];
 }
-    $query = "select dt.*,dt.id as id_detall,iv.*,dt.descuento as descuento_linea,dt.iva as iva_linea,tc.nit as t_nit,tc.nombres as t_nombres,tc.apellidos as t_apellidos,tc.email as t_correos,ev.estado as enc_estado
+    $query = "select dt.*,dt.id as id_detall,iv.*,dt.descuento as descuento_linea,dt.iva as iva_linea,ev.tercero as t_nit,tc.nombres as t_nombres,tc.apellidos as t_apellidos,tc.email as t_correos,ev.estado as enc_estado
     from detall_coti as dt 
     LEFT OUTER JOIN inventario as iv on iv.parte = dt.codigo 
     LEFT OUTER JOIN encabeza_coti as ev on ev.id = dt.id_coti
@@ -25,12 +25,12 @@ if (isset($_POST['id'])) {
 <script>
 $('.linead').click(function() {
     // Obtener los datos de la fila actual
-    var idRepuesto = $(this).find('td:eq(1)').text().trim();
-    var nombreRepuesto = $(this).find('td:eq(2)').text();
-    var cantidad = limpiarTexto($(this).find('td:eq(6)').text());
-    var precio = limpiarTexto($(this).find('td:eq(9)').text());
-    var descuento = limpiarTexto($(this).find('td:eq(8)').text());
-    var iva = limpiarTexto($(this).find('td:eq(7)').text());
+    var idRepuesto = $(this).closest('tr').find('td:eq(1)').text().trim();
+    var nombreRepuesto = $(this).closest('tr').find('td:eq(2)').text();
+    var cantidad = limpiarTexto($(this).closest('tr').find('td:eq(6)').text());
+    var precio = limpiarTexto($(this).closest('tr').find('td:eq(9)').text());
+    var descuento = limpiarTexto($(this).closest('tr').find('td:eq(8)').text());
+    var iva = limpiarTexto($(this).closest('tr').find('td:eq(7)').text());
     // Crear el formulario dentro del modal
     Swal.fire({
         title: 'Modificar Producto',
@@ -62,7 +62,7 @@ $('.linead').click(function() {
             var nuevoPrecio = Swal.getPopup().querySelector('#swal-precio').value;
             var nuevoDescuento = Swal.getPopup().querySelector('#swal-descuento').value;
             var nuevoIva = Swal.getPopup().querySelector('#swal-iva').value;
-     
+
             $.ajax({
                 type: "POST",
                 url: "./components/moduls/cotizacion/functions.php",
@@ -197,6 +197,20 @@ $('.autorizated_item').click(function() {
         data: {
             id: id,
             status: 'autorizate_item',
+        },
+        url: "./components/moduls/cotizacion/functions.php",
+        success: function(response) {
+            cargarCoti(response);
+        }
+    });
+});
+$('.desautori_item').click(function() {
+    var id = $(this).data("id");
+    $.ajax({
+        type: "POST",
+        data: {
+            id: id,
+            status: 'desautori_item',
         },
         url: "./components/moduls/cotizacion/functions.php",
         success: function(response) {
@@ -374,46 +388,46 @@ $('#back-coti').click(function() {
                     $total_t_autorizado += $total;
                 }
                 ?>
-                <tr id="linead-<?php echo $row['id']; ?>"
-                    class="linead bg-white rounded border-b hover:bg-gray-100 <?php if ($data['enc_estado'] == 2 and $row['estado'] != 1) {echo 'hidden';} ?>">
-                    <td class="px-4 py-1">
+                <tr 
+                    class="bg-white rounded border-b hover:bg-gray-100 <?php if ($data['enc_estado'] == 2 and $row['estado'] != 1) {echo 'hidden';} ?>">
+                    <td class="px-4 py-1 linead">
                         <img src="https://barcode.tec-it.com/barcode.ashx?data=<?php echo $row['codigo']; ?>&code=Code128&translate-esc=on"
                             class="w-auto h-16 my-3" id="codigo_barra" alt="Código de Barras">
                     </td>
-                    <td class="px-2 py-1 font-medium text-gray-900 whitespace-nowrap ">
+                    <td class="px-2 py-1 font-medium text-gray-900 whitespace-nowrap linead">
                         <?php echo $row['codigo']; ?>
                     </td>
-                    <td class="px-2 py-1 font-medium text-gray-900 whitespace-nowrap ">
+                    <td class="px-2 py-1 font-medium text-gray-900 whitespace-nowrap linead ">
                         <?php echo strtoupper($row['descripcion']); ?>
                     </td>
-                    <td class="px-2 py-1">
+                    <td class="px-2 py-1 linead">
                         <?php echo $row['sucursal']; ?>
                     </td>
-                    <td class="px-2 py-1">
+                    <td class="px-2 py-1 linead">
                         <?php echo $row['marca']; ?>
                     </td>
-                    <td class="px-2 py-1">
+                    <td class="px-2 py-1 linead">
                         <?php echo $row['tipo']; ?>
                     </td>
-                    <td class="px-2 py-1">
+                    <td class="px-2 py-1 linead">
                         <?php echo $row['cantidad']; ?>
                     </td>
-                    <td class="px-2 py-1">
+                    <td class="px-2 py-1 linead">
                         <?php echo $row['iva_linea']; ?>%
                     </td>
-                    <td class="px-2 py-1">
+                    <td class="px-2 py-1 linead">
                         <?php echo $row['descuento']; ?>%
                     </td>
-                    <td class="px-1 py-1">
+                    <td class="px-1 py-1 linead">
                         <?php echo '$' . number_format($row['precio'], 0, '.', ','); ?>
                     </td>
-                    <td class="px-1 py-1 text-gray-900">
+                    <td class="px-1 py-1 text-gray-900 linead">
                         <?php echo '$' . number_format($descuento, 0, '.', ','); ?>
                     </td>
-                    <td class="px-1 py-1 text-gray-900">
+                    <td class="px-1 py-1 text-gray-900 linead">
                         <?php echo '$' . number_format($iva, 0, '.', ','); ?>
                     </td>
-                    <td class="px-1 py-1 text-gray-900">
+                    <td class="px-1 py-1 text-gray-900 linead">
                         <?php  echo '$' . number_format($total, 0, '.', ','); ?>
                     </td>
 
@@ -422,6 +436,8 @@ $('#back-coti').click(function() {
                             class='autorizated_item bx bx-check bg-green-600 text-white rounded p-2 hover:bg-slate-500 mr-4 <?php if($row['estado'] == 1 OR $row['enc_estado'] != 1){echo 'hidden';} ?>'></i>
                         <i data-id="<?php echo $row['id_detall'];?>"
                             class='delete_item bx bx-x bg-red-600 text-white rounded p-2 hover:bg-slate-500 <?php if($row['estado'] == 1 OR $row['enc_estado'] != 1){echo 'hidden';} ?>'></i>
+                        <i data-id="<?php echo $row['id_detall'];?>"
+                            class='desautori_item bx bx-reset bg-yellow-400 text-white rounded p-2 hover:bg-slate-500 <?php if($row['estado'] == 1){echo ''; }else{echo 'hidden';} ?>'></i>
                     </td>
                 </tr>
 

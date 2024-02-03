@@ -47,6 +47,13 @@ if ($estado == 'autorizate_item') {
     $result_task = mysqli_query($conn, $query);
     echo $id_coti;
 }
+if ($estado == 'desautori_item') {
+    $id = $_POST['id'];
+    $id_coti = $_SESSION['coti'];
+    $query = "UPDATE detall_coti SET estado=0 WHERE id = '$id'";
+    $result_task = mysqli_query($conn, $query);
+    echo $id_coti;
+}
 if ($estado == 'delete_item') {
     $id = $_POST['id'];
     $id_coti = $_SESSION['coti'];
