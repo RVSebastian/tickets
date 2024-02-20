@@ -10,6 +10,7 @@ error_reporting(0);
 .swal2-confirm {
     background-color: rgb(75, 85, 99) !important;
 }
+
 </style>
 <!DOCTYPE html>
 <html lang="en">
@@ -31,7 +32,11 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js
     <link href="
 https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css
 " rel="stylesheet">
-<link rel="shortcut icon" href="./img/logo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="./img/logo.png" type="image/x-icon">
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
 </head>
 
+
 <body class="bg-gray-200">
+    

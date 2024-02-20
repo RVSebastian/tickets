@@ -15,7 +15,6 @@ if (isset($_POST['id'])) {
     LEFT OUTER JOIN encabeza_coti as ev on ev.id = dt.id_coti
     LEFT OUTER JOIN terceros as tc on tc.nit = ev.tercero
     where id_coti='$id'
-    and dt.estado in(1,0)
     ";
     
     $result_task = mysqli_query($conn, $query);
@@ -23,6 +22,16 @@ if (isset($_POST['id'])) {
     $row_count = mysqli_num_rows($result_task);
 ?>
 <script>
+$('.print_fac').on('click', function() {
+
+    var cotizacionId = 1;
+    // URL del PDF que deseas imprimir
+    var pdfUrl = './components/moduls/cotizacion/print.php?cotizacion_id=' + cotizacionId;
+
+    // Abrir una nueva pestaña con la URL del PDF
+    window.open(pdfUrl, '_blank');
+});
+
 $('.linead').click(function() {
     // Obtener los datos de la fila actual
     var idRepuesto = $(this).closest('tr').find('td:eq(1)').text().trim();
@@ -37,19 +46,19 @@ $('.linead').click(function() {
         html: `<div class="bg-white p-4 rounded-md shadow-md text-left">
                             <div class="mb-4 flex">
                                 <label for="swal-cantidad" class="block text-sm font-medium text-gray-700 w-1/3 pr-4">Cantidad:</label>
-                                <input id="swal-cantidad" class="form-input flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" value="${cantidad}">
+                                <input id="swal-cantidad" type="number" class="form-input flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" value="${cantidad}">
                             </div>
                             <div class="mb-4 flex">
                                 <label for="swal-precio" class="block text-sm font-medium text-gray-700 w-1/3 pr-4">Precio:</label>
-                                <input id="swal-precio" class="form-input flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" value="${precio}">
+                                <input id="swal-precio" type="number" class="form-input flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" value="${precio}">
                             </div>
                             <div class="mb-4 flex">
                                 <label for="swal-descuento" class="block text-sm font-medium text-gray-700 w-1/3 pr-4">Descuento (%):</label>
-                                <input id="swal-descuento" class="form-input flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" value="${descuento}">
+                                <input id="swal-descuento"  type="number" class="form-input flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" value="${descuento}">
                             </div>
                             <div class="flex">
                                 <label for="swal-iva" class="block text-sm font-medium text-gray-700 w-1/3 pr-4">IVA (%):</label>
-                                <input id="swal-iva" class="form-input flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" value="${iva}">
+                                <input id="swal-iva"  type="number" class="form-input flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" value="${iva}">
                             </div>
                         </div>`,
         showCancelButton: true,
@@ -75,10 +84,20 @@ $('.linead').click(function() {
                     status: "update_prices_uni"
                 },
                 success: function(response) {
-                    Swal.fire('¡Datos actualizados!', '', 'success');
                     console.log(response);
-                    cargarCoti(response);
-
+                    if (response == 'Error: No hay inventario en stock') {
+                        Swal.fire({
+                            title: 'Confirmación',
+                            text: 'No hay suficiente inventario en stock',
+                            icon: 'warning',
+                        });
+                    } else if (response > 0) {
+                        Swal.fire('¡Datos actualizados!', '', 'success');
+                        cargarCoti(response);
+                    } else {
+                        Swal.fire('¡Algo extraño a pasado, se aborta ejecucion!', '',
+                            'warning');
+                    }
                 },
                 error: function(error) {
                     // Manejar errores, si es necesario
@@ -118,7 +137,7 @@ $('.enc_fac').click(function() {
     var id = $(this).data("id");
     Swal.fire({
         title: 'Confirmación',
-        text: '¿Estás seguro de querer realizar esta acción?, no podras modificar nada despues',
+        text: '¿Estás seguro de querer realizar esta acción?, no podras modificar nada despues y se generara un estado de FACTURADO',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -135,7 +154,16 @@ $('.enc_fac').click(function() {
                     },
                     url: "./components/moduls/cotizacion/functions.php",
                     success: function(response) {
-                        cargarCoti(response);
+                        console.log(response);
+                        if (response == 'Error: No hay inventario en stock') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Stock insuficiente en el inventario'
+                            });
+                        } else {
+                            cargarCoti(response);
+                        }
                     }
                 });
             } else {
@@ -192,15 +220,27 @@ $('.enc_reop').click(function() {
 
 $('.autorizated_item').click(function() {
     var id = $(this).data("id");
+    var codigo = $(this).data("codigo");
+    var cantidad = $(this).data("stock");
     $.ajax({
         type: "POST",
         data: {
             id: id,
+            codigo: codigo,
+            cantidad: cantidad,
             status: 'autorizate_item',
         },
         url: "./components/moduls/cotizacion/functions.php",
         success: function(response) {
-            cargarCoti(response);
+            if (response == 'Error: No hay inventario en stock') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Stock insuficiente en el inventario'
+                });
+            } else {
+                cargarCoti(response);
+            }
         }
     });
 });
@@ -255,6 +295,7 @@ $('#input_document').on('change', function() {
                 $('#buton-añadir').show();
 
             } catch (error) {
+               
                 Swal.fire({
                     icon: 'warning',
                     title: 'Error',
@@ -263,6 +304,7 @@ $('#input_document').on('change', function() {
             }
         }
     });
+
     if ($('#input_document').val().trim() !== "") {
         var id = $(this).val();
         $.ajax({
@@ -286,6 +328,7 @@ $('#input_document').on('change', function() {
                     $('#buton-añadir').show();
 
                 } catch (error) {
+                   
                     Swal.fire({
                         icon: 'warning',
                         title: 'Error',
@@ -301,21 +344,56 @@ $('#input_document').on('change', function() {
 $('#back-coti').click(function() {
     cotizaciones();
 });
+tippy('.back', {
+    content: 'Ir a la pagina anterior',
+});
+tippy('.print_fac', {
+    content: 'Imprimir Cotizacion',
+});
+tippy('.enc_fac', {
+    content: 'Facturar Cotizacion',
+});
+tippy('.enc_del', {
+    content: 'Cerrar Cotizacion',
+});
+tippy('.enc_reop', {
+    content: 'Reabrir Cotizacion',
+});
+tippy('.autorizated_item', {
+    content: 'Autorizar Linea',
+});
+tippy('.delete_item', {
+    content: 'Eliminar Linea',
+});
+tippy('.desautori_item', {
+    content: 'Desautorizar Linea',
+});
+tippy('#add-modal', {
+    content: 'Añadir articulos',
+});
 </script>
 <div id="modal-add"></div>
 <div id="coti">
     <div class="bg-white mx-5 p-5 mt-6">
-        <p id="back-coti" class="py-3 font-semibold hover:text-gray-600"><i class='bx bx-chevron-left'></i> Regresar al
+        <p id="back-coti" class="pt-3 pb-6 font-semibold hover:text-gray-600 hover:cursor-pointer"><i
+                class='bx bx-chevron-left back'></i>
+            Regresar al
             listado</p>
+        <div id="tooltip-back" role="tooltip"
+            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+            Tooltip content
+            <div class="tooltip-arrow" data-popper-arrow></div>
+        </div>
         <div class="px-3 py-2 mt-2">
             <div class="grid gap-8 mb-2 md:grid-cols-3 ">
                 <div>
-                    <label for="first_name" class="block text-sm font-medium text-gray-900 ">Nit / Numero de
+                    <label for="input_document" class="block text-sm font-medium text-gray-900 ">Nit / Numero de
                         Documento</label>
                     <input type="text" id="input_document" <?php if($id != 0){echo 'readonly';} ?>
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
-                        placeholder="1096538459" value="<?php if(isset($data['t_nit'])){echo $data['t_nit'];}  ?>"
-                        required>
+                        placeholder="" value="<?php if (isset($data['t_nit'])) {
+                            echo $data['t_nit'];
+                        }  ?>" required>
                 </div>
                 <div>
                     <label for="first_name" class="block text-sm font-medium text-gray-900 ">Nombre del
@@ -342,6 +420,8 @@ $('#back-coti').click(function() {
                 </div>
                 <div class="text-right pt-2">
                     <i data-id="<?php echo $id; ?>"
+                        class='print_fac bx bx-printer bg-slate-800 text-white rounded p-2 hover:bg-slate-500 mr-4  <?php if($data['enc_estado'] != 2 ){echo'hidden';} ?>'></i>
+                    <i data-id="<?php echo $id; ?>"
                         class='enc_fac bx bxs-file-plus bg-green-600 text-white rounded p-2 hover:bg-slate-500 mr-4 <?php if($data['enc_estado'] != 1){echo 'hidden';} ?>'></i>
                     <i data-id="<?php echo $id; ?>"
                         class='enc_del bx bxs-lock bg-red-700 text-white rounded p-2 hover:bg-slate-500 <?php if($data['enc_estado'] != 1){echo 'hidden';} ?>'></i>
@@ -351,12 +431,11 @@ $('#back-coti').click(function() {
             </div>
         </div>
     </div>
-
     <div class="relative overflow-x-auto py-5 mx-5">
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 ">
             <?php
-    if ($row_count > 0) {
-    ?>
+            if ($row_count > 0) {
+            ?>
             <tbody>
                 <?php
                 $total_descuento = 0;
@@ -371,6 +450,7 @@ $('#back-coti').click(function() {
                 $items_autorizados = 0;
 
                foreach ($result_task as $row) {
+                if ($row['estado'] != 5){
                 $unidad = $row['precio'] * $row['cantidad'];
                 $descuento = round($unidad*($row['descuento_linea']/100));
                 $bruto = round($unidad-$descuento); 
@@ -380,6 +460,7 @@ $('#back-coti').click(function() {
                 $total_descuento += $descuento;
                 $total_iva += $iva;
                 $total_t += $total;
+                }
                 if ($row['estado'] == 1) {
                     $items_autorizados+=$row['cantidad'];
                     $total_descuento_autorizado += $descuento;
@@ -388,56 +469,70 @@ $('#back-coti').click(function() {
                     $total_t_autorizado += $total;
                 }
                 ?>
-                <tr 
-                    class="bg-white rounded border-b hover:bg-gray-100 <?php if ($data['enc_estado'] == 2 and $row['estado'] != 1) {echo 'hidden';} ?>">
-                    <td class="px-4 py-1 linead">
+                <tr class="bg-white rounded border-b hover:bg-gray-100 
+                    <?php if ($row['estado'] == 5) {echo 'hidden';} ?> <?php if($data['enc_estado'] == 2 and $row['estado'] != 1 ){echo'hidden';} ?>
+                    ">
+                    <td class="px-4 py-1 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <img src="https://barcode.tec-it.com/barcode.ashx?data=<?php echo $row['codigo']; ?>&code=Code128&translate-esc=on"
                             class="w-auto h-16 my-3" id="codigo_barra" alt="Código de Barras">
                     </td>
-                    <td class="px-2 py-1 font-medium text-gray-900 whitespace-nowrap linead">
+                    <td class="px-2 py-1  <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo $row['codigo']; ?>
                     </td>
-                    <td class="px-2 py-1 font-medium text-gray-900 whitespace-nowrap linead ">
+                    <td class="px-2 py-1  <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo strtoupper($row['descripcion']); ?>
                     </td>
-                    <td class="px-2 py-1 linead">
+                    <td class="px-2 py-1 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo $row['sucursal']; ?>
                     </td>
-                    <td class="px-2 py-1 linead">
+                    <td class="px-2 py-1 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo $row['marca']; ?>
                     </td>
-                    <td class="px-2 py-1 linead">
+                    <td class="px-2 py-1 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo $row['tipo']; ?>
                     </td>
-                    <td class="px-2 py-1 linead">
+                    <td class="px-2 py-1 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo $row['cantidad']; ?>
                     </td>
-                    <td class="px-2 py-1 linead">
+                    <td class="px-2 py-1 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo $row['iva_linea']; ?>%
                     </td>
-                    <td class="px-2 py-1 linead">
+                    <td class="px-2 py-1 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo $row['descuento']; ?>%
                     </td>
-                    <td class="px-1 py-1 linead">
+                    <td class="px-1 py-1 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo '$' . number_format($row['precio'], 0, '.', ','); ?>
                     </td>
-                    <td class="px-1 py-1 text-gray-900 linead">
+                    <td
+                        class="px-1 py-1 text-gray-900 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo '$' . number_format($descuento, 0, '.', ','); ?>
                     </td>
-                    <td class="px-1 py-1 text-gray-900 linead">
+                    <td
+                        class="px-1 py-1 text-gray-900 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php echo '$' . number_format($iva, 0, '.', ','); ?>
                     </td>
-                    <td class="px-1 py-1 text-gray-900 linead">
+                    <td
+                        class="px-1 py-1 text-gray-900 <?php if($row['estado'] != 1){echo'linead hover:cursor-pointer';} ?>">
                         <?php  echo '$' . number_format($total, 0, '.', ','); ?>
                     </td>
 
                     <td class="px-0 py-1 text-center">
-                        <i data-id="<?php echo $row['id_detall'];?>"
-                            class='autorizated_item bx bx-check bg-green-600 text-white rounded p-2 hover:bg-slate-500 mr-4 <?php if($row['estado'] == 1 OR $row['enc_estado'] != 1){echo 'hidden';} ?>'></i>
-                        <i data-id="<?php echo $row['id_detall'];?>"
-                            class='delete_item bx bx-x bg-red-600 text-white rounded p-2 hover:bg-slate-500 <?php if($row['estado'] == 1 OR $row['enc_estado'] != 1){echo 'hidden';} ?>'></i>
-                        <i data-id="<?php echo $row['id_detall'];?>"
-                            class='desautori_item bx bx-reset bg-yellow-400 text-white rounded p-2 hover:bg-slate-500 <?php if($row['estado'] == 1){echo ''; }else{echo 'hidden';} ?>'></i>
+                        <?php
+                     
+                        if ($data['enc_estado'] != 3) {
+                        ?>
+                        <i data-id="<?php echo $row['id_detall'];?>" data-codigo="<?php echo $row['codigo'];?>"
+                            data-stock="<?php echo $row['cantidad'];?>"
+                            class='autorizated_item bx bx-check bg-green-600 text-white rounded p-2 hover:bg-slate-500 mr-4  <?php if($data['enc_estado'] == 2 ){echo'hidden';} ?> <?php if($row['estado'] == 1 OR $row['enc_estado'] != 1){echo 'hidden';} ?>'></i>
+                        <i data-id="<?php echo $row['id_detall'];?>" data-codigo="<?php echo $row['codigo'];?>"
+                            data-stock="<?php echo $row['cantidad'];?>"
+                            class='delete_item bx bx-x bg-red-600 text-white rounded p-2 hover:bg-slate-500  <?php if($data['enc_estado'] == 2 ){echo'hidden';} ?> <?php if($row['estado'] == 1 OR $row['enc_estado'] != 1){echo 'hidden';} ?>'></i>
+                        <i data-id="<?php echo $row['id_detall'];?>" data-codigo="<?php echo $row['codigo'];?>"
+                            data-stock="<?php echo $row['cantidad'];?>"
+                            class="desautori_item bx bx-reset bg-yellow-400 text-white rounded p-2 hover:bg-slate-500 <?php if($data['enc_estado'] == 2 ){echo'hidden';} ?> <?php if($row['estado'] == 1){echo ''; }else{echo 'hidden';} ?>"></i>
+                        <?php
+                        }
+                        ?>
                     </td>
                 </tr>
 
@@ -447,9 +542,11 @@ $('#back-coti').click(function() {
                 <?php
                 $items = 0;
                
-               foreach ($result_task as $row) {
-                $items += $row['cantidad'];
-               }
+                foreach ($result_task as $row) {
+                    if ($row['estado'] != 5){
+                    $items += $row['cantidad'];
+                    }
+                }
                 ?>
                 <!--- CAMPO DE LOS TOTALES -->
                 <tr class="bg-gray-50 border rounded <?php if ($data['enc_estado'] == 2) {echo 'hidden';} ?>">
@@ -527,9 +624,7 @@ $('#back-coti').click(function() {
 
                 </tr>
             </tbody>
-            <?php
-     }
-    ?>
+            <?php } ?>
         </table>
         <div id="buton-añadir"
             class="grid justify-items-end mt-4 <?php if(isset($row['enc_estado']) AND $row['enc_estado'] != 1){echo 'hidden';} ?>">

@@ -32,7 +32,7 @@ $('#form').submit(function() {
     var formData = $(this).serialize() + "&action=create";
     $.ajax({
         type: "POST",
-        url: "./components/moduls/usuarios/funciones",
+        url: "./components/moduls/usuarios/funciones.php",
         data: formData,
         success: function(response) {
             if (response == 'Registro Creado') {
@@ -59,7 +59,7 @@ $('.form-edit').submit(function() {
     var formData = $(this).serialize() + "&action=update";
     $.ajax({
         type: "POST",
-        url: "./components/moduls/usuarios/funciones",
+        url: "./components/moduls/usuarios/funciones.php",
         data: formData,
         success: function(response) {
             if (response == 'Registro Actualizado') {
@@ -85,7 +85,7 @@ $('.eliminar').click(function() {
     var id = $(this).attr('data-id');
     $.ajax({
         type: "POST",
-        url: "./components/moduls/usuarios/funciones",
+        url: "./components/moduls/usuarios/funciones.php",
         data: {
             id: id,
             action: 'delete'
@@ -151,7 +151,7 @@ $('.editar').click(function() {
                         <?php foreach ($result_task2 as $row) { ?>
                         <tr class="bg-white border-b hover:bg-gray-100">
                             <td class="px-0 py-4">
-                                <i class='bx bxs-data bg-yellow-600 text-white rounded p-2'></i>
+                                <i class='bx bxs-data bg-green-600 text-white rounded p-2'></i>
                             </td>
                         
                             <th scope="row" class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap">
@@ -258,7 +258,7 @@ foreach ($result_task as $row) {
                     value="<?php echo $row['contraseña']; ?>" required>
             </div>
             <button type="submit"
-                class="text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Actualizar
+                class="text-white bg-gray-700 hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Actualizar
                 Usuario</button>
         </form>
     </div>
@@ -283,7 +283,7 @@ foreach ($result_task as $row) {
                 <label for="usuario" class="block mb-2 text-sm font-medium text-gray-900">Usuario</label>
                 <input type="text" id="1" name="1"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5"
-                    placeholder="VARGAZS" required>
+                    placeholder="juancbastianrv@gmail.com" required>
             </div>
             <div class="mb-5">
                 <label for="contraseña" class="block mb-2 text-sm font-medium text-gray-900">Nombre</label>
@@ -308,7 +308,7 @@ foreach ($result_task as $row) {
                     placeholder="***" required>
             </div>
             <button type="submit"
-                class="text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Crear
+                class="text-white bg-gray-700 hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Crear
                 Usuario</button>
         </form>
     </div>

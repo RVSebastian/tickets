@@ -10,23 +10,23 @@ $empresa = $_SESSION['key']['empresa'];
 if ($empresa == 'ADMINISTRADOR') {
 ?>
 <style>
-.border-lime-600 {
+.border-green-600 {
     border-color: #9B59B6 !important;
 }
 
-.text-lime-600 {
+.text-green-600 {
     color: #9B59B6 !important;
 }
 
-.text-lime-600:hover {
+.text-green-600:hover {
     color: #9B59B6 !important;
 }
 
-.bg-lime-600 {
+.bg-green-600 {
     background-color: #9B59B6 !important;
 }
 
-.bg-lime-600:hover {
+.bg-green-600:hover {
     background-color: #9B59B6 !important;
 }
 </style>
@@ -78,6 +78,10 @@ function list() {
     cargarContenido("./components/moduls/usuarios/list.php");
 }
 
+function home() {
+    cargarContenido("./components/moduls/dashboard/home.php");
+}
+
 function terceros() {
     cargarContenido("./components/moduls/terceros/home.php");
 }
@@ -102,74 +106,95 @@ function cotizaciones() {
     cargarContenido("./components/moduls/cotizacion/home.php");
 }
 
+
+
 function home() {
-    $('.listas').find('.border-b-2.border-lime-600').removeClass('border-b-2 border-lime-600');
-    $('.listas #home').toggleClass('border-b-2 border-lime-600');
+    $('#login').hide();
+    $('#app,#app_nav , #logo-sidebar').show();
+    $('#loading').hide();
+    $('#cont').fadeIn(900);
+    $('.listas').find('.border-b-2.border-green-600').removeClass('border-b-2 border-green-600');
+    $('.listas #home').toggleClass('border-b-2 border-green-600');
     cargarContenido("./components/moduls/dashboard/home.php");
 }
 
 function login() {
-    $('#login').show();
+    $('#loading').show();
+    $('#login').hide();
+
     $.ajax({
         type: "POST",
         url: "./components/moduls/login/section.php",
         success: function(response) {
             $('#login').html(response);
+            $('#login').fadeIn(1400, function() {
+                $('#loading').fadeOut(1200);
+            });
         }
     });
-    $('body').toggleClass('bg-gray-700');
+    $('.cont').toggleClass('hidden');
+    $('body').toggleClass('bg-white');
 }
 
 
 $(document).ready(function() {
-    <?php if (!isset($_SESSION['key']['usuario'])) : ?>
-    $('#logo-sidebar, #app_nav').hide();
+    <?php if (!isset($_SESSION['key']['empresa']) OR !isset($_SESSION['key']['usuario'])) : ?>
     login();
     <?php else: ?>
-    $('#app').fadeIn('slow');
-    $('#app_nav , #logo-sidebar').fadeIn('fast');
     home();
+    <?php endif; ?>
+
     $('#inventario').click(function() {
         inventario();
-        $('.listas').find('.border-b-2.border-lime-600').removeClass('border-b-2 border-lime-600');
-        $(this).toggleClass('border-b-2 border-lime-600');
+        $('.listas').find('.border-b-2.border-green-600').removeClass('border-b-2 border-green-600');
+        $(this).toggleClass('border-b-2 border-green-600');
         return false;
     });
     $('#users').click(function() {
         list();
-        $('.listas').find('.border-b-2.border-lime-600').removeClass('border-b-2 border-lime-600');
-        $(this).toggleClass('border-b-2 border-lime-600');
+        $('.listas').find('.border-b-2.border-green-600').removeClass('border-b-2 border-green-600');
+        $(this).toggleClass('border-b-2 border-green-600');
         return false;
     });
     $('#perfil').click(function() {
         perfil();
-        $('.listas').find('.border-b-2.border-lime-600').removeClass('border-b-2 border-lime-600');
-        $(this).toggleClass('border-b-2 border-lime-600');
+        $('.listas').find('.border-b-2.border-green-600').removeClass('border-b-2 border-green-600');
+        $(this).toggleClass('border-b-2 border-green-600');
         return false;
     });
     $('#pagos').click(function() {
         pagos();
-        $('.listas').find('.border-b-2.border-lime-600').removeClass('border-b-2 border-lime-600');
-        $(this).toggleClass('border-b-2 border-lime-600');
+        $('.listas').find('.border-b-2.border-green-600').removeClass('border-b-2 border-green-600');
+        $(this).toggleClass('border-b-2 border-green-600');
         return false;
     });
 
     $('#recibos').click(function() {
         recibos();
-        $('.listas').find('.border-b-2.border-lime-600').removeClass('border-b-2 border-lime-600');
-        $(this).toggleClass('border-b-2 border-lime-600');
+        $('.listas').find('.border-b-2.border-green-600').removeClass('border-b-2 border-green-600');
+        $(this).toggleClass('border-b-2 border-green-600');
         return false;
     });
     $('#terceros').click(function() {
         terceros();
-        $('.listas').find('.border-b-2.border-lime-600').removeClass('border-b-2 border-lime-600');
-        $(this).toggleClass('border-b-2 border-lime-600');
+        $('.listas').find('.border-b-2.border-green-600').removeClass('border-b-2 border-green-600');
+        $(this).toggleClass('border-b-2 border-green-600');
+        return false;
+    });
+    $('#home').click(function() {
+        home();
+        $('.listas').find('.border-b-2.border-green-600').removeClass('border-b-2 border-green-600');
+        $(this).toggleClass('border-b-2 border-green-600');
+        return false;
+    });
+    $('#home2').click(function() {
+        home();
         return false;
     });
     $('#cotizaciones').click(function() {
         cotizaciones();
-        $('.listas').find('.border-b-2.border-lime-600').removeClass('border-b-2 border-lime-600');
-        $(this).toggleClass('border-b-2 border-lime-600');
+        $('.listas').find('.border-b-2.border-green-600').removeClass('border-b-2 border-green-600');
+        $(this).toggleClass('border-b-2 border-green-600');
         return false;
     });
     $('#destroy').click(function() {
@@ -182,15 +207,19 @@ $(document).ready(function() {
         });
         return false;
     });
-    <?php endif; ?>
 });
 </script>
 
+<div id="loading" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; overflow: hidden;">
+    <div class="flex items-center justify-center bg-black bg-opacity-85 h-full">
+        <div class="loader ease-linear rounded-full border-t-4 border-green-300 h-12 w-12 mb-4 animate-spin"></div>
+    </div>
+</div>
 
 
+<div id="login" class="hidden" style="height: 100%; overflow:hidden"></div>
 
-
-<nav class="fixed top-0 z-50 w-full bg-white border-b-4 border-lime-600 shadow-md" id="app_nav">
+<nav class="fixed top-0 z-50 w-full bg-white border-b-4 border-green-600 shadow-md hidden" id="app_nav">
     <div class="px-3 py-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center justify-start rtl:justify-end">
@@ -205,18 +234,18 @@ $(document).ready(function() {
                         </path>
                     </svg>
                 </button>
-                <a href="" id="home" class="flex ms-2 md:me-24 ">
-                    <i class='bx bxs-cube-alt h-8 mt-2 text-xl mr-1 ml-1 text-lime-600'></i>
+                <a href="" id="home2" class="flex ms-4 md:me-24 ">
                     <span class="self-center text-xl font-semibold whitespace-nowrap "><span
-                            class="text-2xl text-lime-600 font-semibold">S</span>tockify</span>
-
+                            class="text-2xl text-green-600 font-bold">S</span>tockify</span>
+                    <span class="text-md text-slate-700 font-semibold mt-2"> -
+                        <?php echo $_SESSION['key']['empresa'] ?></span>
                 </a>
 
             </div>
             <div class="flex items-center">
                 <div class="flex items-center ms-5">
                     <div>
-                        <button type="button" class="flex text-sm hover:text-lime-700 px-2 mr-5 rounded-full"
+                        <button type="button" class="flex text-sm hover:text-green-700 px-2 mr-5 rounded-full"
                             aria-expanded="false" data-dropdown-toggle="dropdown-user">
                             <span class="sr-only">Open user menu</span>
                             <svg class="w-5 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -258,10 +287,10 @@ $(document).ready(function() {
 </nav>
 
 <aside id="logo-sidebar"
-    class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full mt-4 border-r border-gray-200 shadow-lg  sm:translate-x-0 bg-slate-900"
+    class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full mt-4 border-r border-gray-200 shadow-lg  sm:translate-x-0 bg-slate-900 hidden"
     aria-label="Sidebar">
     <div class="h-full px-5 pb-4 overflow-y-auto listas">
-        <ul class="space-y-5 font-normal text-sm">
+        <ul class="space-y-6 font-normal text-sm">
             <li>
                 <a href="" id="home" class="flex items-center p-2 text-gray-100   hover:bg-slate-800  group">
                     <svg class="w-5 h-5 text-white transition duration-75 group-hover:text-gray-100 " aria-hidden="true"
@@ -308,13 +337,13 @@ $(document).ready(function() {
             </li>
 
             <li>
-                <a href="" id="pagos" class="flex items-center p-2 text-gray-100   hover:bg-gray-600  group">
+                <a href="" id="1pagos" class="flex items-center p-2 text-gray-50  hover:bg-gray-600  group">
                     <svg class="flex-shrink-0 w-5 h-5 text-white transition duration-75 group-hover:text-gray-100 "
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 24">
                         <path
                             d="M13.383.076a1 1 0 0 0-1.09.217L11 1.586 9.707.293a1 1 0 0 0-1.414 0L7 1.586 5.707.293a1 1 0 0 0-1.414 0L3 1.586 1.707.293A1 1 0 0 0 0 1v18a1 1 0 0 0 1.707.707L3 18.414l1.293 1.293a1 1 0 0 0 1.414 0L7 18.414l1.293 1.293a1 1 0 0 0 1.414 0L11 18.414l1.293 1.293A1 1 0 0 0 14 19V1a1 1 0 0 0-.617-.924ZM10 15H4a1 1 0 1 1 0-2h6a1 1 0 0 1 0 2Zm0-4H4a1 1 0 1 1 0-2h6a1 1 0 1 1 0 2Zm0-4H4a1 1 0 0 1 0-2h6a1 1 0 1 1 0 2Z" />
                     </svg>
-                    <span class="flex-1 ms-3 whitespace-nowrap">App mis pagos</span>
+                    <span class="flex-1 ms-3 whitespace-nowrap text-">App mis pagos</span>
                 </a>
             </li>
             <li>
@@ -326,7 +355,7 @@ $(document).ready(function() {
                         <path
                             d="M4.439 9a2.99 2.99 0 0 1 2.742 1.8 1.977 1.977 0 0 0 3.638 0A2.99 2.99 0 0 1 13.561 9H17.8L15.977.783A1 1 0 0 0 15 0H3a1 1 0 0 0-.977.783L.2 9h4.239Z" />
                     </svg>
-                    <span class="flex-1 ms-3 whitespace-nowrap">Ingreso de mercancia</span>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Mercancia</span>
                 </a>
             </li>
 
@@ -340,6 +369,7 @@ $(document).ready(function() {
                     <span class="flex-1 ms-3 whitespace-nowrap">Envios</span>
                 </a>
             </li>
+            <!--
             <li>
                 <button type="button"
                     class="flex items-center w-full p-2 text-base text-gray-100 transition duration-75 group hover:bg-gray-600  "
@@ -369,6 +399,7 @@ $(document).ready(function() {
                     </li>
                 </ul>
             </li>
+-->
             <li>
                 <a href="" id="users" class="flex items-center p-2 text-gray-100   hover:bg-gray-600  group">
                     <svg class="flex-shrink-0 w-5 h-5 text-white transition duration-75 group-hover:text-gray-100 "
@@ -383,16 +414,16 @@ $(document).ready(function() {
     </div>
 </aside>
 
-<div class="p-4 sm:ml-64" style="overflow:hidden">
-    <div class="p-4  rounded-lg mt-7">
+<div class="p-4 sm:ml-64 cont" style="overflow:hidden">
+    <div class="p-4 rounded-lg mt-7">
         <div id="app" class="hidden">
-            <section class="px-4 pt-3 pb-2 md:px-0 w-full" id="content"></section>
+            <section class="px-5 pt-3 pb-2 md:px-0 w-full" id="content"></section>
         </div>
 
 
     </div>
 </div>
-<div id="login" class="hidden"></div>
+
 
 
 <?php

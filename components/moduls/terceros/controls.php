@@ -28,6 +28,18 @@ if($_POST['action'] == 'search'){
     }
 }
 
+if ($_POST['action'] == 'search_rep') {
+    $codigo = $_POST['codigo'];
+    $query = "SELECT * FROM inventario where parte = '$codigo' ";
+    $result_task = mysqli_query($conn, $query);
+    if ($result_task) {
+        $result_array = mysqli_fetch_assoc($result_task);
+        print_value($result_array);
+    } else {
+        error(mysqli_error($conn));
+    }
+}
+
 if ($_POST['action'] == 'insert') {
     $f1 = $_POST['nit'];
     $f2 = $_POST['nombres'];

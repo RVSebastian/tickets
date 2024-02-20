@@ -44,7 +44,7 @@ $('.add_click').click(function() {
             icon: 'error',
             title: 'Error',
             text: 'Tercero no existente, por favor añadirlo desde el modulo de terceros o volver a consultar en Nit/documento',
-            
+
         });
     } else {
         var id = $(this).data("id");
@@ -89,7 +89,17 @@ $('.add_click').click(function() {
                             },
                             success: function(response) {
                                 // Manejar la respuesta de la petición AJAX si es necesario
-                                cargarCoti(response);
+                                if (response ==
+                                    'Error: Ya existe ese articulo en la cotizacion.') {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'Error: Ya existe ese articulo en la cotizacion.'
+                                    });
+                                } else {
+                                    cargarCoti(response);
+                                }
+
                             }
                         });
                     }

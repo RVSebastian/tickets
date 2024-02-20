@@ -3,12 +3,26 @@ include '../../db/cn.php';
 session_start();
 $empresa = $_SESSION['key']['empresa'];
 if ($empresa == 'ADMINISTRADOR') {
-    $query = "select * from encabeza_coti order by id desc";
+    $query = "
+    select 
+    ec.*,
+    tc.nombres,
+    tc.apellidos,
+    tc.email,
+    tc.telefono
+    from encabeza_coti as ec
+    LEFT JOIN terceros as tc on tc.nit = ec.tercero 
+    order by ec.id desc";
 }else{
     $query = "
     select 
-    ec.*
+    ec.*,
+    tc.nombres,
+    tc.apellidos,
+    tc.email,
+    tc.telefono
     from encabeza_coti as ec
+    LEFT JOIN terceros as tc on tc.nit = ec.tercero 
     where 
     ec.empresa='$empresa' 
     order by ec.id desc";
@@ -18,6 +32,16 @@ $result_task = mysqli_query($conn, $query);
 $row_count = mysqli_num_rows($result_task);
 ?>
 <script>
+$('.print_fac').on('click', function() {
+
+    var cotizacionId = 1;
+    // URL del PDF que deseas imprimir
+    var pdfUrl = './components/moduls/cotizacion/print.php?cotizacion_id=' + cotizacionId;
+
+    // Abrir una nueva pestaña con la URL del PDF
+    window.open(pdfUrl, '_blank');
+});
+
 function cargarCoti(id) {
     $('#coti_list_all,#coti_search,#coti').fadeOut();
     $.ajax({
@@ -27,7 +51,7 @@ function cargarCoti(id) {
             id
         },
         success: function(response) {
-            $('#response').html(response).show();
+            $('#response').html(response).fadeIn('slow');
         }
     });
 }
@@ -57,6 +81,16 @@ $('.search_list').click(function() {
 
 $('#add-modal').click(function() {
     cargarCoti(0);
+});
+
+tippy('.facturado', {
+    content: 'Cotizacion Facturada',
+});
+tippy('.cerrado', {
+    content: 'Cotizacion Cerrada',
+});
+tippy('.abierta', {
+    content: 'Cotizacion Abierta',
 });
 </script>
 <div id="response" class="hidden">
@@ -96,19 +130,20 @@ $('#add-modal').click(function() {
                 <?php
                foreach ($result_task as $row) {
                 ?>
-                <tr class="bg-white rounded border-b hover:bg-gray-100 search_list" data-id="<?php echo $row['id'];?>">
+                <tr class="bg-white rounded border-b hover:bg-gray-100 search_list hover:cursor-pointer"
+                    data-id="<?php echo $row['id'];?>">
                     <td class="px-2 py-4 text-center">
-                    <i class='bx bx-file-blank 
+                        <i class='bx bx-file-blank 
                     <?php 
                     switch ($row['estado']) {
                         case '2':
-                            echo 'bg-green-700';
+                            echo 'bg-green-600 facturado';
                             break;
                         case '3':
-                            echo 'bg-red-700';
+                            echo 'bg-red-700 cerrado';
                              break;
                         default:
-                            echo 'bg-slate-900';
+                            echo 'bg-slate-900 abierta';
                             break;
                     }
                     ?> text-white rounded p-2 '></i>
@@ -122,15 +157,23 @@ $('#add-modal').click(function() {
                     <td class="px-3 py-4">
                         <?php echo $row['tercero']; ?>
                     </td>
-                   
                     <td class="px-3 py-4">
-                        <?php echo $row['valor_total']; ?>
+                        <?php echo $row['nombres'].' '.$row['apellidos']; ?>
                     </td>
                     <td class="px-3 py-4">
-                        <?php echo $row['fecha']; ?>
+                        <?php echo $row['telefono']; ?>
                     </td>
-                   
-                  
+                    <td class="px-3 py-4">
+                        <?php echo $row['email']; ?>
+                    </td>
+                    <td class="px-3 py-4">
+                        <?php 
+                        echo date('d/m/Y', strtotime($row['fecha']));
+                        ?>
+
+                    </td>
+
+
                 </tr>
                 <?php
                 }

@@ -9,7 +9,7 @@ $_SESSION['captcha'] = $captchaText;
 // Crea una imagen con el texto del captcha y la muestra
 header('Content-type: image/png');
 $font = 4;
-$imageWidth = 270;
+$imageWidth = 300;
 $imageHeight = 40;
 $image = imagecreatetruecolor($imageWidth, $imageHeight);
 $bgColor = imagecolorallocate($image, 255, 255, 255);
